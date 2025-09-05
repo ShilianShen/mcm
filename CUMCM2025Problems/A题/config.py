@@ -11,11 +11,12 @@ smoke_period = 20
 
 
 # ======================================================================================================================
+fake_target = np.array([0, 0, 0])
+
+
 real_target_radius = 7
 real_target_top = np.array([0, 200, 10])
 real_target_button = np.array([0, 200, 0])
-
-fake_target = np.array([0, 0, 0])
 
 
 N = 40
@@ -46,9 +47,7 @@ fys = np.array([
     [11000, 2000, 1800],
     [13000, -2000, 1300]
 ])
-fy_v_theta = np.zeros([
-    len(fys), 2
-])
+fy_v_theta = np.zeros([len(fys), 2])
 fy_period = 1
 fy_speed_min = 70
 fy_speed_max = 140

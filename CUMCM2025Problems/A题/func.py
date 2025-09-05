@@ -9,20 +9,38 @@ def get_missile_position(m_id: int, t_now: float):
     velocity = missile_speed / norm(direction) * direction
     return start + velocity * t_now
 
+# \tau
+def get_fy_position(fy_id: int, t_now: float):
+    fy_start = fys[fy_id]
+    v, theta = fy_v_theta[fy_id]
+    fy_velocity = np.array([np.cos(theta), np.sin(theta), 0]) * v
+    fy_position = fy_start + fy_velocity * t_now
+    return fy_position
+
 # \mu
-def get_smoke_position(fy_id: int, t_drop: float, t_detonate: float, t_now: float):
+def get_smoke_position(fy_id: int, t_drop: float, t_detonate: float, t_now: float, content: dict = None):
     # [0, t_drop, t_detonate, t_detonate + smoke_period, infty)
-    if not (t_detonate < t_now < t_detonate + smoke_period):
-        return None
-    fy_position = fys[fy_id]
+
+    fy_start = fys[fy_id]
     v, theta = fy_v_theta[fy_id]
     fy_velocity = np.array([np.cos(theta), np.sin(theta), 0]) * v
 
-    detonate_position = fy_position + fy_velocity * t_detonate
-    detonate_position[2] -= 0.5 * 9.8 * (t_detonate - t_drop) ** 2
+    if t_drop <= t_now < t_detonate:
+        smoke_bomb_position = fy_start + fy_velocity * t_now
+        smoke_bomb_position[2] -= 0.5 * 9.8 * (t_now - t_drop) ** 2
+        if content is not None:
+            content["smoke bomb"].append(smoke_bomb_position)
+        return smoke_bomb_position
 
-    smoke_position = detonate_position + smoke_velocity * (t_now - t_detonate)
-    return smoke_position
+    elif t_detonate <= t_now < t_detonate + smoke_period:
+        detonate_position = fy_start + fy_velocity * t_detonate
+        detonate_position[2] -= 0.5 * 9.8 * (t_detonate - t_drop) ** 2
+        smoke_position = detonate_position + smoke_velocity * (t_now - t_detonate)
+        if content is not None:
+            content["smoke"].append(smoke_position)
+        return smoke_position
+
+    return None
 
 # g
 def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray):
@@ -43,23 +61,27 @@ def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray)
     return True
 
 # \sigma
-def get_time_interval(m_id, fy_id, t_drop, t_detonate, res = 0.1):
+def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1, content: dict = None):
     result = []
 
     if isinstance(m_id, np.ndarray) and len(m_id) > 1:
         for m in m_id:
-            result.append(get_time_interval(m, fy_id, t_drop, t_detonate))
+            result.append(get_time_interval(m, fy_id, t_drop, t_detonate, res))
         return np.array(result)
 
     if isinstance(fy_id, np.ndarray) and len(fy_id) >= 1:
-        for fy in fy_id:
-            result.append(get_time_interval(m_id, fy, t_drop, t_detonate))
+        for j in range(len(fy_id)):
+            result.append(get_time_interval(m_id, fy_id[j], t_drop[j], t_detonate[j], res))
         return np.array(result)
 
     a = b = -1
-    for t in np.arange(t_detonate, t_detonate + smoke_period, res):
+    for t in np.arange(0, t_detonate + smoke_period, res):
         missile_position = get_missile_position(m_id, t)
-        smoke_position = get_smoke_position(fy_id, t_drop, t_detonate, t)
+        fy_position = get_fy_position(fy_id, t)
+        smoke_position = get_smoke_position(fy_id, t_drop, t_detonate, t, content=content)
+        if content is not None:
+            content["missile"].append(missile_position)
+            content["fy"].append(fy_position)
         if smoke_position is None:
             continue
         countermeasure = get_countermeasure(missile_position, smoke_position)
@@ -130,6 +152,3 @@ def draw_3d_scatter(vertices: np.ndarray):
            zticklabels=[])
     plt.show()
 
-
-if __name__ == '__main__':
-    pass

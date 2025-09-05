@@ -77,7 +77,7 @@ def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray)
 
 
 # \sigma
-def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 5e-2):
+def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 1e-2):
     result = []
 
     if isinstance(m_id, np.ndarray) and len(m_id) > 1:

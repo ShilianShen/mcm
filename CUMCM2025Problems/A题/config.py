@@ -4,6 +4,28 @@ from numpy.linalg import norm
 
 
 
+# content = {"missile": [], "fy": [], "smoke bomb": [], "smoke": []}
+class Content:
+    def __init__(self):
+        self.w = False
+        self.data = {"missile": [], "fy": [], "smoke bomb": [], "smoke": [], "angle": []}
+
+    def clear(self):
+        for value in self.data.values():
+            value.clear()
+
+    def append(self, key, value):
+        if self.w:
+            self.data[key].append(value)
+
+    def __enter__(self):
+        self.w = True
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.w = False
+content = Content()
+
+
 # ======================================================================================================================
 smoke_velocity = np.array([0, 0, -3])
 smoke_radius = 10

@@ -7,7 +7,9 @@ def get_missile_position(m_id: int, t_now: float):
     start = missiles[m_id]
     direction = fake_target - start
     velocity = missile_speed / norm(direction) * direction
-    return start + velocity * t_now
+    missile_position = start + velocity * t_now
+    content.append("missile", missile_position)
+    return missile_position
 
 # \tau
 def get_fy_position(fy_id: int, t_now: float):
@@ -15,12 +17,12 @@ def get_fy_position(fy_id: int, t_now: float):
     v, theta = fy_v_theta[fy_id]
     fy_velocity = np.array([np.cos(theta), np.sin(theta), 0]) * v
     fy_position = fy_start + fy_velocity * t_now
+    content.append("fy", fy_position)
     return fy_position
 
 # \mu
-def get_smoke_position(fy_id: int, t_drop: float, t_detonate: float, t_now: float, content: dict = None):
+def get_smoke_position(fy_id: int, t_drop: float, t_detonate: float, t_now: float):
     # [0, t_drop, t_detonate, t_detonate + smoke_period, infty)
-
     fy_start = fys[fy_id]
     v, theta = fy_v_theta[fy_id]
     fy_velocity = np.array([np.cos(theta), np.sin(theta), 0]) * v
@@ -28,19 +30,39 @@ def get_smoke_position(fy_id: int, t_drop: float, t_detonate: float, t_now: floa
     if t_drop <= t_now < t_detonate:
         smoke_bomb_position = fy_start + fy_velocity * t_now
         smoke_bomb_position[2] -= 0.5 * 9.8 * (t_now - t_drop) ** 2
-        if content is not None:
-            content["smoke bomb"].append(smoke_bomb_position)
+        content.append("smoke bomb", smoke_bomb_position)
         return smoke_bomb_position
 
     elif t_detonate <= t_now < t_detonate + smoke_period:
         detonate_position = fy_start + fy_velocity * t_detonate
         detonate_position[2] -= 0.5 * 9.8 * (t_detonate - t_drop) ** 2
         smoke_position = detonate_position + smoke_velocity * (t_now - t_detonate)
-        if content is not None:
-            content["smoke"].append(smoke_position)
+        content.append("smoke", smoke_position)
         return smoke_position
 
     return None
+
+
+# \alpha
+def get_angle(missile_position: np.ndarray, smoke_position: np.ndarray):
+    if not (missile_position.ndim == 1 and missile_position.shape[0] == 3):
+        raise ValueError('missile_position must be 3D')
+    if not (smoke_position.ndim == 1 and smoke_position.shape[0] == 3):
+        raise ValueError('smoke_position must be 3D')
+
+    vec_MS = smoke_position - missile_position
+
+    if norm(vec_MS) <= smoke_radius:
+        return 0
+
+    point_angles = []
+    for point in real_target_samples:
+        vec_MP = point - missile_position
+        point_angles.append(np.arccos(np.dot(vec_MS, vec_MP) / (norm(vec_MS) * norm(vec_MP))))
+    angle = max(point_angles)
+    content.append("angle", angle)
+    return angle
+
 
 # g
 def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray):
@@ -53,15 +75,11 @@ def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray)
     if norm(vec_MS) <= smoke_radius:
         return True
     cone_theta = np.arcsin(smoke_radius / norm(vec_MS))
-    for point in real_target_samples:
-        vec_MP = point - missile_position
-        point_theta = np.arccos(np.dot(vec_MS, vec_MP) / (norm(vec_MS) * norm(vec_MP)))
-        if cone_theta < point_theta:
-            return False
-    return True
+    return cone_theta > get_angle(missile_position, smoke_position)
+
 
 # \sigma
-def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1, content: dict = None):
+def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1):
     result = []
 
     if isinstance(m_id, np.ndarray) and len(m_id) > 1:
@@ -78,10 +96,7 @@ def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1, content
     for t in np.arange(0, t_detonate + smoke_period, res):
         missile_position = get_missile_position(m_id, t)
         fy_position = get_fy_position(fy_id, t)
-        smoke_position = get_smoke_position(fy_id, t_drop, t_detonate, t, content=content)
-        if content is not None:
-            content["missile"].append(missile_position)
-            content["fy"].append(fy_position)
+        smoke_position = get_smoke_position(fy_id, t_drop, t_detonate, t)
         if smoke_position is None:
             continue
         countermeasure = get_countermeasure(missile_position, smoke_position)

@@ -19,6 +19,7 @@ class Content:
             self.data[key].append(value)
 
     def __enter__(self):
+        self.clear()
         self.w = True
 
     def __exit__(self, exc_type, exc_val, exc_tb):

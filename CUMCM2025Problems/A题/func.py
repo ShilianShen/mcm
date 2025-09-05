@@ -51,15 +51,17 @@ def get_angle(missile_position: np.ndarray, smoke_position: np.ndarray):
         raise ValueError('smoke_position must be 3D')
 
     vec_MS = smoke_position - missile_position
-
     if norm(vec_MS) <= smoke_radius:
         return 0
+    cone_theta = np.arcsin(smoke_radius / norm(vec_MS))
 
-    point_angles = []
+    angles = [0]
     for point in real_target_samples:
         vec_MP = point - missile_position
-        point_angles.append(np.arccos(np.dot(vec_MS, vec_MP) / (norm(vec_MS) * norm(vec_MP))))
-    angle = max(point_angles)
+        point_angle = np.arccos(np.dot(vec_MS, vec_MP) / (norm(vec_MS) * norm(vec_MP)))
+        if point_angle > cone_theta:
+            angles.append(point_angle - cone_theta)
+    angle = np.mean(angles)
     content.append("angle", angle)
     return angle
 
@@ -71,11 +73,7 @@ def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray)
     if not (smoke_position.ndim == 1 and smoke_position.shape[0] == 3):
         raise ValueError('smoke_position must be 3D')
 
-    vec_MS = smoke_position - missile_position
-    if norm(vec_MS) <= smoke_radius:
-        return True
-    cone_theta = np.arcsin(smoke_radius / norm(vec_MS))
-    return cone_theta > get_angle(missile_position, smoke_position)
+    return get_angle(missile_position, smoke_position) == 0
 
 
 # \sigma
@@ -165,5 +163,16 @@ def draw_3d_scatter(vertices: np.ndarray):
     ax.set(xticklabels=[],
            yticklabels=[],
            zticklabels=[])
+    plt.show()
+
+
+def draw_content():
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    for key in ["missile", "fy", "smoke bomb", "smoke"]:
+        arr = np.array(content.data[key])
+        ax.plot(arr[:, 0], arr[:, 1], arr[:, 2])
+        ax.scatter(*arr[0], label=key)
+    ax.scatter(*real_target_top, label="real target")
+    plt.legend()
     plt.show()
 

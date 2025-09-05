@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 
 from config import *
 
-# \phi
+
+# \mu
 def get_missile_position(m_id: int, t_now: float):
     start = missiles[m_id]
     direction = fake_target - start
@@ -11,7 +12,8 @@ def get_missile_position(m_id: int, t_now: float):
     content.append("missile", missile_position)
     return missile_position
 
-# \tau
+
+# \phi
 def get_fy_position(fy_id: int, t_now: float):
     fy_start = fys[fy_id]
     v, theta = fy_v_theta[fy_id]
@@ -20,7 +22,8 @@ def get_fy_position(fy_id: int, t_now: float):
     content.append("fy", fy_position)
     return fy_position
 
-# \mu
+
+# \sigma
 def get_smoke_position(fy_id: int, t_drop: float, t_detonate: float, t_now: float):
     # [0, t_drop, t_drop + t_detonate, t_drop + t_detonate + smoke_period, infty)
     fy_start = fys[fy_id]
@@ -76,7 +79,7 @@ def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray)
     return get_angle(missile_position, smoke_position) == 0
 
 
-# \sigma
+# \tau
 def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 1e-2):
     result = []
 
@@ -106,6 +109,7 @@ def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 1e-2):
     if b < a:
         b = T
     return np.array([a, b])
+
 
 # \lambda
 def get_lebesgue(intervals: np.ndarray):

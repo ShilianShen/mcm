@@ -22,21 +22,21 @@ def get_fy_position(fy_id: int, t_now: float):
 
 # \mu
 def get_smoke_position(fy_id: int, t_drop: float, t_detonate: float, t_now: float):
-    # [0, t_drop, t_detonate, t_detonate + smoke_period, infty)
+    # [0, t_drop, t_drop + t_detonate, t_drop + t_detonate + smoke_period, infty)
     fy_start = fys[fy_id]
     v, theta = fy_v_theta[fy_id]
     fy_velocity = np.array([np.cos(theta), np.sin(theta), 0]) * v
 
-    if t_drop <= t_now < t_detonate:
+    if t_drop <= t_now < t_drop + t_detonate:
         smoke_bomb_position = fy_start + fy_velocity * t_now
         smoke_bomb_position[2] -= 0.5 * 9.8 * (t_now - t_drop) ** 2
         content.append("smoke bomb", smoke_bomb_position)
         return smoke_bomb_position
 
-    elif t_detonate <= t_now < t_detonate + smoke_period:
-        detonate_position = fy_start + fy_velocity * t_detonate
-        detonate_position[2] -= 0.5 * 9.8 * (t_detonate - t_drop) ** 2
-        smoke_position = detonate_position + smoke_velocity * (t_now - t_detonate)
+    elif t_drop + t_detonate <= t_now < t_drop + t_detonate + smoke_period:
+        detonate_position = fy_start + fy_velocity * (t_drop + t_detonate)
+        detonate_position[2] -= 0.5 * 9.8 * t_detonate ** 2
+        smoke_position = detonate_position + smoke_velocity * (t_now - t_detonate - t_drop)
         content.append("smoke", smoke_position)
         return smoke_position
 
@@ -91,7 +91,7 @@ def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1):
         return np.array(result)
 
     a = b = -1
-    for t in np.arange(0, t_detonate + smoke_period, res):
+    for t in np.arange(0, t_drop + t_detonate + smoke_period, res):
         missile_position = get_missile_position(m_id, t)
         fy_position = get_fy_position(fy_id, t)
         smoke_position = get_smoke_position(fy_id, t_drop, t_detonate, t)

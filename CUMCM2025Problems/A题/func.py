@@ -77,7 +77,7 @@ def get_countermeasure(missile_position: np.ndarray, smoke_position: np.ndarray)
 
 
 # \sigma
-def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1):
+def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 5e-2):
     result = []
 
     if isinstance(m_id, np.ndarray) and len(m_id) > 1:
@@ -91,7 +91,8 @@ def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1):
         return np.array(result)
 
     a = b = -1
-    for t in np.arange(0, t_drop + t_detonate + smoke_period, res):
+    T = min(t_drop + t_detonate + smoke_period, missile_life[m_id])
+    for t in np.arange(0, T, res):
         missile_position = get_missile_position(m_id, t)
         fy_position = get_fy_position(fy_id, t)
         smoke_position = get_smoke_position(fy_id, t_drop, t_detonate, t)
@@ -103,7 +104,7 @@ def get_time_interval(m_id, fy_id, t_drop, t_detonate, res: float = 0.1):
         if not countermeasure and b < 0 <= a:
             b = t
     if b < a:
-        b = a + smoke_period
+        b = T
     return np.array([a, b])
 
 # \lambda
@@ -169,10 +170,12 @@ def draw_3d_scatter(vertices: np.ndarray):
 def draw_content():
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     for key in ["missile", "fy", "smoke bomb", "smoke"]:
+        if len(content.data[key]) <= 0:
+            continue
         arr = np.array(content.data[key])
         ax.plot(arr[:, 0], arr[:, 1], arr[:, 2])
         ax.scatter(*arr[0], label=key)
-    ax.scatter(*real_target_top, label="real target")
+    # ax.scatter(*real_target_top, label="real target")
     plt.legend()
     plt.show()
 

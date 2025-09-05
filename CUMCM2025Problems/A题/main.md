@@ -129,7 +129,7 @@ $ g(\mathcal{M}, \mathcal{S})=\land_{i\le n}\lor_{j\le m}g(M_i, S_j) $
 
 $$
 S(t)=\mu(\vec{x}, v, \theta, t_k, t'_k, t)\\
-\sigma(M, S)=[\argmin_{g(M, S(t))=1} t, \argmax_{g(M, S(t))=1} t] \\
+\sigma(M, S)=[\arg\min_{g(M, S(t))=1} t, \arg\max_{g(M, S(t))=1} t] \\
 \sigma(M, \mathcal{S})=\cup_{j\le m}\sigma(M, S_j) \\
 \sigma(\mathcal{M}, \mathcal{S})=\cap_{i\le n}\cup_{j\le m}\sigma(M_i, S_j)
 $$
@@ -160,7 +160,7 @@ $$
 
 $$
 S_{11}(t)=\mu(F_1, v,\theta,t_1,t'_1, t)\\
-\argmax \lambda\circ \sigma(M_1, S_{11})=?
+\arg\max \lambda\circ \sigma(M_1, S_{11})=?
 $$
 
 ## 问题 3
@@ -170,7 +170,7 @@ $$
 $$
 \mathcal{S}=\{S_{1k}\}_{k\le3}\\
 S_{1,k}(t)=\mu(F_1, v_1, \theta_1, t_{1k}, t_{1k}', t)\\
-\argmax \lambda\circ\sigma(M_1, \mathcal{S})=?
+\arg\max \lambda\circ\sigma(M_1, \mathcal{S})=?
 $$
 
 ## 问题 4
@@ -180,7 +180,7 @@ $$
 $$
 \mathcal{S}=\{S_{j1}\}_{j\le3}\\
 S_{j1}(t)=\mu(F_j, v_j, \theta_j, t_{j1}, t_{j1}', t)\\
-\argmax \lambda\circ\sigma(M_1, \mathcal{S})=?
+\arg\max \lambda\circ\sigma(M_1, \mathcal{S})=?
 $$
 
 ## 问题 5
@@ -192,5 +192,5 @@ $$
 $$
 \mathcal{M}=\{M_i\}_{i\le3}, \mathcal{S}=\{S_{jk}\}_{j\le5,k\le3}\\
 S_{jk}(t)=\mu(F_j, v_j, \theta_j, t_{jk}, t_{jk}', t)\\
-\argmax \lambda\circ\sigma(\mathcal{M}, \mathcal{S})=?
+\arg\max \lambda\circ\sigma(\mathcal{M}, \mathcal{S})=?
 $$

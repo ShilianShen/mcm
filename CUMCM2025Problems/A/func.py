@@ -185,3 +185,28 @@ def draw_content():
     plt.legend()
     plt.show()
 
+
+
+bounds = [(fy_speed_min, fy_speed_max), (0, 2 * np.pi), (0, missile_life_max), (0, missile_life_max)]
+def standardize(params):
+    std = np.zeros(len(params))
+    for i in range(len(params)):
+        std[i] = (params[i] - bounds[i][0]) / (bounds[i][1] - bounds[i][0])
+    return std
+
+
+def de_standardize(std):
+    params = np.zeros(len(std))
+    for i in range(len(params)):
+        params[i] = bounds[i][0] + std[i] * (bounds[i][1] - bounds[i][0])
+    return params
+
+
+def get_grad(param: np.ndarray, step: float, loss_func):
+    grad = np.zeros(len(param))
+    for i, d in enumerate(np.eye(len(param))):
+        dy = loss_func(param + d * step) - loss_func(param - d * step)
+        dx = step * 2
+        grad[i] = dy / dx
+    return grad
+

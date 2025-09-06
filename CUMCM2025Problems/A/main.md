@@ -136,13 +136,41 @@ S(t)=\mu(\vec{x}, v, \theta, t_k, t'_k, t)\\
 $$
 
 $$
-
-
-$$
-
-$$
 \lambda为\mathbb{R}上的Lebesgue测度\\
 \lambda \circ \tau(\mathcal{M}, \mathcal{S})为实际遮掩时间
+$$
+
+### 参数优化(针对问题二、三、四、五)
+
+问题二、三、四、五均与参数优化问题有关, 我们使用梯度下降为主要方法求参数.
+
+#### 问题情景
+
+$f$是以$x$为参数的函数, 需要求解使$f$的数值最小的$x$, 即求$\arg\min f(x)$.
+
+#### 梯度定义
+
+$$
+\text{grad}f(x):=(\frac{\partial f(x)}{\partial x_1}, \frac{\partial f(x)}{\partial x_2}, ...)
+$$
+
+#### 使用中心差分近似偏导数
+
+使用中心差分近似$f$在第$i$维度上的偏导数, 其中$h$是只在第$i$个维度上不为零, 且模长小的向量, $O(|h|^4)$为误差.
+
+$$
+\frac{\partial f(x)}{\partial x_i} = \frac{f(x + h) - f(x - h)}{2|h|}+O(|h|^4)
+$$
+
+#### 迭代方程
+
+以某$x_0$为起始状态, $r$为学习率, 迭代得到$\arg\min f(x)$
+
+$$
+\begin{cases}
+\Delta x_k=-r \cdot \text{grad}f(x_k) \\
+x_{k+1}=x_k+\Delta x_k
+\end{cases}
 $$
 
 ## 问题 1
@@ -150,8 +178,6 @@ $$
 利用无人机 FY1 投放 1 枚烟幕干扰弹实施对 M1 的干扰，若 FY1 以 120 m/s 的速度朝向假目标方向飞行，受领任务 1.5 s 后即投放 1 枚烟幕干扰弹，间隔 3.6 s 后起爆。请给出烟幕干扰弹对 M1 的有效遮蔽时长。
 
 $$
-\theta = ...\\
-S_{11}(t)=\sigma(F_1, 120, \theta, 1.5, 1.5+3.6, t)\\
 \lambda\circ\tau(M_1, S_{11})=?
 $$
 
@@ -160,8 +186,17 @@ $$
 利用无人机 FY1 投放 1 枚烟幕干扰弹实施对 M1 的干扰，确定 FY1 的飞行方向、飞行速度、烟幕干扰弹投放点、烟幕干扰弹起爆点，使得遮蔽时间尽可能长。
 
 $$
-S_{11}(t)=\mu(F_1, v,\theta,t_1,t'_1, t)\\
-\arg\max \lambda\circ \sigma(M_1, S_{11})=?
+\arg\max \lambda\circ \tau(\mu_1, \sigma_{11})=?
+$$
+
+将该问题转为梯度下降的参数优化过程
+
+$$
+\begin{matrix}
+x := (v_1, \theta_1, t_{11}, t_{11}') \\
+f(x) := -\lambda\circ\tau(\mu_1, \sigma_{11}) \\
+\arg\min_x f(x) =\arg\max \lambda\circ \tau(\mu_1, \sigma_{11})
+\end{matrix}
 $$
 
 ## 问题 3
@@ -169,9 +204,18 @@ $$
 利用无人机 FY1 投放 3 枚烟幕干扰弹实施对 M1 的干扰。 请给出烟幕干扰弹的投放策略，并将结果保存到文件 result1.xlsx 中（模板文件见附件） 。
 
 $$
-\mathcal{S}=\{S_{1k}\}_{k\le3}\\
-S_{1,k}(t)=\mu(F_1, v_1, \theta_1, t_{1k}, t_{1k}', t)\\
-\arg\max \lambda\circ\sigma(M_1, \mathcal{S})=?
+S=\{\sigma_{1,k}\}_{k\le3}\\
+\arg\max \lambda\circ\sigma(\mu_1, S)=?
+$$
+
+将该问题转为梯度下降的参数优化过程
+
+$$
+\begin{matrix}
+x:=(v_1, \theta_1, t_{1k}, t_{1k}'), k\le3\\
+f(x) := -\lambda\circ\tau(\mu_1, S) \\
+\arg\min_x f(x) =\arg\max \lambda\circ \tau(\mu_1, S)
+\end{matrix}
 $$
 
 ## 问题 4
@@ -179,9 +223,18 @@ $$
 利用 FY1、FY2、FY3 等 3 架无人机，各投放 1 枚烟幕干扰弹，实施对 M1 的干扰。请给出烟幕干扰弹的投放策略，并将结果保存到文件 result2.xlsx 中（模板文件见附件）.
 
 $$
-\mathcal{S}=\{S_{j1}\}_{j\le3}\\
-S_{j1}(t)=\mu(F_j, v_j, \theta_j, t_{j1}, t_{j1}', t)\\
-\arg\max \lambda\circ\sigma(M_1, \mathcal{S})=?
+S=\{\sigma_{j1}\}_{j\le3}\\
+\arg\max \lambda\circ\sigma(\mu_1, S)=?
+$$
+
+将该问题转为梯度下降的参数优化过程
+
+$$
+\begin{matrix}
+x:=(v_1, \theta_1, t_{j1}, t_{j1}'), j\le3\\
+f(x) := -\lambda\circ\tau(\mu_1, S) \\
+\arg\min_x f(x) =\arg\max \lambda\circ \tau(\mu_1, S)
+\end{matrix}
 $$
 
 ## 问题 5
@@ -191,7 +244,16 @@ $$
 （模板文件见附件）。
 
 $$
-\mathcal{M}=\{M_i\}_{i\le3}, \mathcal{S}=\{S_{jk}\}_{j\le5,k\le3}\\
-S_{jk}(t)=\mu(F_j, v_j, \theta_j, t_{jk}, t_{jk}', t)\\
-\arg\max \lambda\circ\sigma(\mathcal{M}, \mathcal{S})=?
+M=\{\mu_i\}_{i\le3}, S=\{\sigma_{jk}\}_{j\le5,k\le3}\\
+\arg\max \lambda\circ\sigma(M, S)=?
+$$
+
+将该问题转为梯度下降的参数优化过程
+
+$$
+\begin{matrix}
+x:=(v_1, \theta_1, t_{jk}, t_{jk}'), j\le5, k\le3\\
+f(x) := -\lambda\circ\tau(M, S) \\
+\arg\min_x f(x) =\arg\max \lambda\circ \tau(M, S)
+\end{matrix}
 $$

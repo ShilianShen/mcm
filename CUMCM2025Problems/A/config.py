@@ -63,6 +63,7 @@ missiles = np.array([
 missile_life = np.zeros([3])
 for i in range(3):
     missile_life[i] = norm(missiles[i]) / missile_speed
+missile_life_max = np.max(missile_life)
 
 
 # ======================================================================================================================
@@ -81,10 +82,3 @@ fy_speed_max = 140
 
 def set_fy_mission(fy_id, speed, theta):
     fy_v_theta[fy_id, :] = speed, theta
-
-
-t_max = 0
-for missile in missiles:
-    t = norm(missile - fake_target) / missile_speed
-    if t > t_max:
-        t_max = t

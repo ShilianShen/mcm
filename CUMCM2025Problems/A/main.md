@@ -130,9 +130,9 @@ $ g(\mathcal{M}, \mathcal{S})=\land_{i\le n}\lor_{j\le m}g(M_i, S_j) $
 
 $$
 S(t)=\mu(\vec{x}, v, \theta, t_k, t'_k, t)\\
-\sigma(M, S)=[\arg\min_{g(M, S(t))=1} t, \arg\max_{g(M, S(t))=1} t] \\
-\sigma(M, \mathcal{S})=\cup_{j\le m}\sigma(M, S_j) \\
-\sigma(\mathcal{M}, \mathcal{S})=\cap_{i\le n}\cup_{j\le m}\sigma(M_i, S_j)
+\tau(M, S)=[\min_{g(M, S(t))=1} t, \max_{g(M, S(t))=1} t] \\
+\tau(M, \mathcal{S})=\cup_{j\le m}\tau(M, S_j) \\
+\tau(\mathcal{M}, \mathcal{S})=\cap_{i\le n}\cup_{j\le m}\tau(M_i, S_j)
 $$
 
 $$
@@ -142,7 +142,7 @@ $$
 
 $$
 \lambda为\mathbb{R}上的Lebesgue测度\\
-\lambda \circ \sigma(\mathcal{M}, \mathcal{S})为实际遮掩时间
+\lambda \circ \tau(\mathcal{M}, \mathcal{S})为实际遮掩时间
 $$
 
 ## 问题 1
@@ -151,8 +151,8 @@ $$
 
 $$
 \theta = ...\\
-S_{11}(t)=\mu(F_1, 120, \theta, 1.5, 1.5+3.6, t)\\
-\lambda\circ\sigma(M_1, S_{11})=?
+S_{11}(t)=\sigma(F_1, 120, \theta, 1.5, 1.5+3.6, t)\\
+\lambda\circ\tau(M_1, S_{11})=?
 $$
 
 ## 问题 2

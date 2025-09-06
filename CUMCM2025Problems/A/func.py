@@ -53,11 +53,13 @@ def get_angle(missile_position: np.ndarray, smoke_position: np.ndarray):
     if not (smoke_position.ndim == 1 and smoke_position.shape[0] == 3):
         raise ValueError('smoke_position must be 3D')
 
+    # cone
     vec_MS = smoke_position - missile_position
     if norm(vec_MS) <= smoke_radius:
         return 0
     cone_theta = np.arcsin(smoke_radius / norm(vec_MS))
 
+    # angle
     angles = [0]
     for point in real_target_samples:
         vec_MP = point - missile_position
